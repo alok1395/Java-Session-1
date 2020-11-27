@@ -1,5 +1,7 @@
 package com.upgrad.ubank;
 
+import com.upgrad.ubank.dtos.Account;
+import com.upgrad.ubank.dtos.Transaction;
 import com.upgrad.ubank.services.*;
 
 import java.util.Scanner;
@@ -132,6 +134,7 @@ public class Application {
         System.out.println("*********************");
 
         System.out.println("Get the account corresponding to Account No: " + loggedInAccountNo);
+        accountService.getAccount(loggedInAccountNo);
     }
 
     private void deposit () {
@@ -147,7 +150,19 @@ public class Application {
         System.out.print("Amount: ");
         int amount = Integer.parseInt(scan.nextLine());
 
+        int intialBalance=accountService.getBalance(loggedInAccountNo);
+        accountService.deposit(loggedInAccountNo,amount);
+        int finalBalance=accountService.getBalance(loggedInAccountNo);
+
+
+
         System.out.println("Deposit " + amount + " rs to account " + loggedInAccountNo);
+
+        if(intialBalance==finalBalance){
+            System.out.println("Could not deposit into account.");
+        }else{
+            System.out.println("Money successfully deposited into account.");
+        }
     }
 
     private void withdraw () {
@@ -183,9 +198,10 @@ public class Application {
 
         Transaction[] transactions = transactionService.getTransactions(loggedInAccountNo);
         if (transactions == null) {
-            System.out.println("This feature is not available for mobile");
+            System.out.println("No transaction exists for you.");
         } else {
             System.out.println("Print account statement for account " + loggedInAccountNo);
+            transactionService.getTransactions(loggedInAccountNo);
         }
     }
 
@@ -200,8 +216,9 @@ public class Application {
     }
 
     public static void main(String[] args) {
-        AccountService accountService = new AccountServiceImpl();
-        TransactionService transactionService = new TransactionServiceImplMobile();
+        TransactionService transactionService = new TransactionServiceImpl();
+        AccountService accountService = new AccountServiceImpl(transactionService);
+
         Application application = new Application(accountService, transactionService);
         application.start();
     }
